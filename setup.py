@@ -77,7 +77,7 @@ with open('README.rst', 'r', 'utf-8') as fh:
 setup(
     name=__package_name__,
     description='Test helpers for Prosper projects',
-    version=get_version(__library_name__),
+    version=get_version('prosper', __library_name__),
     long_description=README,
     author='John Purcell',
     author_email='prospermarketshow@gmail.com',
@@ -96,7 +96,7 @@ setup(
         'License :: Public Domain',
     ],
     keywords='testing docker configuration-management pytest',
-    packages=find_packages(),
+    packages=hack_find_packages('prosper'),
     include_package_data=True,
     package_data={
         '': ['LICENSE', 'README.rst'],
