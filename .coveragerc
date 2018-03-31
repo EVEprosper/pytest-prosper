@@ -1,0 +1,9 @@
+[report]
+    omit = 
+        prosper/test_utils/_version.py
+        prosper/test_utils/__init__.py
+        prosper/test_utils/exceptions.py
+
+
+[paths]
+    source = prosper/test_utils
