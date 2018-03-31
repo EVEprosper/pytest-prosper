@@ -76,7 +76,7 @@ with open('README.rst', 'r', 'utf-8') as fh:
 
 setup(
     name=__package_name__,
-    description='Common Utilities for EVEProsper Projects',
+    description='Test helpers for Prosper projects',
     version=get_version(__library_name__),
     long_description=README,
     author='John Purcell',
@@ -95,14 +95,14 @@ setup(
         'Intended Audience :: Developers',
         'License :: Public Domain',
     ],
-    keywords='prosper eve-online webhooks logging configuration-management',
+    keywords='testing docker configuration-management pytest',
     packages=find_packages(),
     include_package_data=True,
     package_data={
         '': ['LICENSE', 'README.rst'],
     },
-    setup_requires=['setuphelpers'],
     install_requires=[
+        'prospercommon',
         'requests',
         'semantic_version',
         'plumbum',
