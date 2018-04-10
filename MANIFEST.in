@@ -1,1 +1,2 @@
 include prosper/test_utils/version.txt
+include prosper/test_utils/root_schema.schema

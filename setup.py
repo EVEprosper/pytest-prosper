@@ -47,7 +47,10 @@ class PyTest(TestCommand):
     http://doc.pytest.org/en/latest/goodpractices.html#manual-integration
 
     """
-    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
+    user_options = [
+        ('pytest-args=', 'a', 'Arguments to pass to pytest')
+
+    ]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -99,24 +102,32 @@ setup(
     packages=hack_find_packages('prosper'),
     include_package_data=True,
     package_data={
-        '': ['LICENSE', 'README.rst'],
+        '': ['LICENSE', 'README.rst', ],
+        'prosper': [
+            'test_utils/root_schema.schema',
+            'test_utils/version.txt',
+        ],
     },
+    python_requires='>=3.5',
     install_requires=[
         'prospercommon',
         'requests',
         'semantic_version',
         'plumbum',
         'docker',
+        'genson',
+        'pymongo[tls]',
     ],
     tests_require=[
         'pytest',
         'pytest_cov',
+        'tinymongo',
     ],
     extras_require={
         'dev':[
             'sphinx',
             'sphinxcontrib-napoleon',
-        ]
+        ],
     },
     cmdclass={
         'test':PyTest,
