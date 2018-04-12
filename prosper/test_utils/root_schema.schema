@@ -1,0 +1,14 @@
+{
+    "type": "object",
+    "properties": {
+        "schema_group": {"type": "string"},
+        "schema_name": {"type": "string"},
+        "update": {"type": "string", "format": "date-time"},
+        "version": {"type": "string"},
+        "schema": {"type": "object"}
+    },
+    "required": [
+        "schema_group", "schema_name", "update", "version", "schema"
+    ],
+    "additionalProperties": false
+}

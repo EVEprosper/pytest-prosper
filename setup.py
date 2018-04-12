@@ -5,8 +5,6 @@ import importlib
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-__package_name__ = 'ProsperTestUtils'
-__library_name__ = 'test_utils'
 
 def get_version(*args):
     """find __version__ for making package
@@ -26,6 +24,26 @@ def get_version(*args):
 
     return version
 
+def get_library_name(*args):
+    """find __library_name__ for making package
+
+    TODO:
+        Fix in 3.7: https://stackoverflow.com/a/48916205
+    Args:
+        (str): python path to project
+
+    Returns:
+        str: __library_name__ value
+
+    """
+
+    module = '.'.join(args) + '._version'
+    package = importlib.import_module(module)
+
+    library_name = package.__library_name__
+
+    return library_name
+
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
 
@@ -41,13 +59,20 @@ def hack_find_packages(include_str):
 
     return new_list
 
+__package_name__ = 'ProsperTestUtils'
+__library_name__ = 'test_utils'
+
+
 class PyTest(TestCommand):
     """PyTest cmdclass hook for test-at-buildtime functionality
 
     http://doc.pytest.org/en/latest/goodpractices.html#manual-integration
 
     """
-    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
+    user_options = [
+        ('pytest-args=', 'a', 'Arguments to pass to pytest')
+
+    ]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
@@ -99,24 +124,32 @@ setup(
     packages=hack_find_packages('prosper'),
     include_package_data=True,
     package_data={
-        '': ['LICENSE', 'README.rst'],
+        '': ['LICENSE', 'README.rst', ],
+        'prosper': [
+            'test_utils/root_schema.schema',
+            'test_utils/version.txt',
+        ],
     },
+    python_requires='>=3.5',
     install_requires=[
         'prospercommon',
         'requests',
         'semantic_version',
         'plumbum',
         'docker',
+        'genson',
+        'pymongo[tls]',
     ],
     tests_require=[
         'pytest',
         'pytest_cov',
+        'tinymongo',
     ],
     extras_require={
         'dev':[
             'sphinx',
             'sphinxcontrib-napoleon',
-        ]
+        ],
     },
     cmdclass={
         'test':PyTest,

@@ -4,7 +4,7 @@
 ProsperTestUtils
 ================
 
-|Build Status| |Coverage Status| |PyPI Badge| |Docs|
+|Build Status| |Coverage Status| |PyPI Badge| |Docs| |Gitter|
 
 Collection of test helpers for Prosper python projects
 
@@ -21,3 +21,6 @@ Collection of test helpers for Prosper python projects
 .. |Docs| image:: https://readthedocs.org/projects/prospertestutils/badge/?version=latest
     :target: http://prospertestutils.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+.. |Gitter| image:: https://badges.gitter.im/Join%20Chat.svg
+    :alt: Join the chat at https://gitter.im/EVEProsper/Lobby
+    :target: https://gitter.im/EVEProsper/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge

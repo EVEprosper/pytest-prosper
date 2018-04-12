@@ -9,7 +9,7 @@ except ImportError:
     INSTALLED = False
 
 HERE = path.abspath(path.dirname(__file__))
-
+__library_name__ = 'test_utils'
 def get_version():
     """find current version information
 
