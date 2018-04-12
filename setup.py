@@ -5,8 +5,6 @@ import importlib
 from setuptools import setup, find_packages
 from setuptools.command.test import test as TestCommand
 
-__package_name__ = 'ProsperTestUtils'
-__library_name__ = 'test_utils'
 
 def get_version(*args):
     """find __version__ for making package
@@ -26,6 +24,26 @@ def get_version(*args):
 
     return version
 
+def get_library_name(*args):
+    """find __library_name__ for making package
+
+    TODO:
+        Fix in 3.7: https://stackoverflow.com/a/48916205
+    Args:
+        (str): python path to project
+
+    Returns:
+        str: __library_name__ value
+
+    """
+
+    module = '.'.join(args) + '._version'
+    package = importlib.import_module(module)
+
+    library_name = package.__library_name__
+
+    return library_name
+
 def hack_find_packages(include_str):
     """patches setuptools.find_packages issue
 
@@ -40,6 +58,10 @@ def hack_find_packages(include_str):
         new_list.append(include_str + '.' + element)
 
     return new_list
+
+__package_name__ = 'ProsperTestUtils'
+__library_name__ = 'test_utils'
+
 
 class PyTest(TestCommand):
     """PyTest cmdclass hook for test-at-buildtime functionality
