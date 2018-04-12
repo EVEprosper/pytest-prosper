@@ -18,21 +18,26 @@ class MongoContextManager:
 
     Args:
         config (:obj:`prosper.common.prosper_config.ProsperConfig`): configparser-like object
-        # username (str): MongoDB Username
-        # password (str): MongoDB Password
         database (str): which database to connect to
-        # connection_str (str): connection string to platform
+        config_key (str): section name for ConfigParser
+        log_key (str): name of logger to attach to
 
     """
 
-    def __init__(self, config, database, config_key='MONGODB', log_key=_version.__library_name__):
+    def __init__(
+            self,
+            config,
+            database,
+            config_key='MONGODB',
+            log_key='PROSPER__' + _version.__library_name__
+    ):
         self.username = config.get_option(config_key, 'username')
         self.password = config.get_option(config_key, 'password')
         self.database = database
         self.connection_string = config.get_option(config_key, 'connection_string')
         self._testmode = False
         self._testmode_filepath = pathlib.Path(__file__).parent / 'testdb.json'
-        self.logger = logging.getLogger('PROSPER__test_helper')
+        self.logger = logging.getLogger(log_key)
         # TODO: validate {} in connection_str
 
     def __get_connector(self):
