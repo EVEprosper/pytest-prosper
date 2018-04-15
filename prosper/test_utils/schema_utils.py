@@ -28,15 +28,15 @@ class MongoContextManager:
             self,
             config,
             database,
-            config_key='MONGODB',
-            log_key='PROSPER__' + _version.__library_name__
+            config_key='MONGO',
+            log_key=_version.__library_name__,
     ):
         self.username = config.get_option(config_key, 'username')
         self.password = config.get_option(config_key, 'password')
         self.database = database
         self.connection_string = config.get_option(config_key, 'connection_string')
         self._testmode = False
-        self._testmode_filepath = pathlib.Path(__file__).parent / 'testdb.json'
+        self._testmode_filepath = pathlib.Path(__file__).parent
         self.logger = logging.getLogger(log_key)
         # TODO: validate {} in connection_str
 
@@ -49,7 +49,7 @@ class MongoContextManager:
         """
         if self._testmode:
             import tinymongo
-            return tinymongo.TinyMongoClient(self._testmode_filepath)
+            return tinymongo.TinyMongoClient(foldername=str(self._testmode_filepath))
 
         return pymongo.MongoClient(
             self.connection_string.format(

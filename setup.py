@@ -128,6 +128,7 @@ setup(
         'prosper': [
             'test_utils/root_schema.schema',
             'test_utils/version.txt',
+            'test_utils/app.cfg',
         ],
     },
     python_requires='>=3.5',
