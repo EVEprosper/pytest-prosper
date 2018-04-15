@@ -139,7 +139,8 @@ setup(
         'plumbum',
         'docker',
         'genson',
-        'pymongo[tls]',
+        'pymongo',
+        'dnspython',
     ],
     tests_require=[
         'pytest',
