@@ -17,7 +17,6 @@ class TestMongoContextManager:
         """test with _testmode enabled"""
         mongo_context = schema_utils.MongoContextManager(
             helpers.TEST_CONFIG,
-            helpers.DATABASE_NAME,
         )
         mongo_context._testmode = True
         mongo_context._testmode_filepath = tmpdir
@@ -36,7 +35,7 @@ class TestMongoContextManager:
 
         mongo_context = schema_utils.MongoContextManager(
             helpers.TEST_CONFIG,
-            helpers.DATABASE_NAME,
+            _database_name=helpers.DATABASE_NAME,
         )
 
         with mongo_context as _:

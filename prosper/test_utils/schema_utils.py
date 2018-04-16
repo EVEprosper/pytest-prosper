@@ -27,13 +27,16 @@ class MongoContextManager:
     def __init__(
             self,
             config,
-            database,
+            _database_name=None,
             config_key='MONGO',
             log_key=_version.__library_name__,
     ):
         self.username = config.get_option(config_key, 'username')
         self.password = config.get_option(config_key, 'password')
-        self.database = database
+        if _database_name:
+            self.database = _database_name
+        else:
+            self.database = config.get_option(config_key, 'database')
         self.connection_string = config.get_option(config_key, 'connection_string')
         self._testmode = False
         self._testmode_filepath = pathlib.Path(__file__).parent
@@ -66,3 +69,23 @@ class MongoContextManager:
     def __exit__(self, *exc):
         """with MongoContextManager() exitpoint"""
         self.connection.close()
+
+def fetch_latest_schema(
+        schema_name,
+        schema_group,
+        config,
+        collection_name='schemas',
+):
+    """find latest schema in database
+
+    Args:
+        schema_name (str): name of schema to track
+        schema_group (str): group name for schema lookup
+        config (:obj:`prosper_config.ProsperConfig`): config object with MONGO creds
+        collection_name (str): table name with schemas
+
+    Returns:
+        dict: jsonschema object with latest version
+
+    """
+    pass
