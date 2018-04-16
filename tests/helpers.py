@@ -1,5 +1,6 @@
 """common test stuff"""
 import os
+import platform
 import warnings
 
 import pymongo
@@ -14,7 +15,27 @@ ROOT = os.path.join(
 TEST_CONFIG = p_config.ProsperConfig(os.path.join(HERE, 'test.cfg'))
 ROOT_CONFIG = p_config.ProsperConfig(os.path.join(ROOT, 'app.cfg'))
 
-DATABASE_NAME = 'mongo_test'
+def get_database_name(base_name='mongo_test'):
+    """creates a database name combining name/py-version
+
+    Args:
+        base_name (str): name of db to connect to
+
+    Returns:
+        str: name + pymajor.pyminor + if(dev)
+
+    """
+    db_str = '{base_name}_{pymajor}.{pyminor}'.format(
+        base_name=base_name,
+        pymajor=platform.python_version_tuple()[0],
+        pyminor=platform.python_version_tuple()[1],
+    )
+    if '+' in platform.python_version():
+        db_str = db_str + '-dev'
+
+    return db_str
+
+DATABASE_NAME = get_database_name()
 
 def can_connect_to_mongo(config):
     """returns true/false whether mongo is available
