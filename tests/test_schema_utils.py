@@ -35,7 +35,6 @@ class TestMongoContextManager:
 
         mongo_context = schema_utils.MongoContextManager(
             helpers.TEST_CONFIG,
-            _database_name=helpers.DATABASE_NAME,
         )
 
         with mongo_context as _:

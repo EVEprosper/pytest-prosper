@@ -10,20 +10,20 @@ import prosper.common.prosper_config as p_config
 HERE = os.path.abspath(os.path.dirname(__file__))
 ROOT = os.path.join(os.path.dirname(HERE), 'prosper', 'test_utils')
 
-TEST_CONFIG_PATH = os.path.join(HERE, 'test.cfg')
-ROOT_CONFIG_PATH = os.path.join(ROOT, 'app.cfg')
+TEST_CONFIG = p_config.ProsperConfig(os.path.join(HERE, 'test.cfg'))
+ROOT_CONFIG = p_config.ProsperConfig(os.path.join(ROOT, 'app.cfg'))
 
-TEST_CONFIG = p_config.ProsperConfig(TEST_CONFIG_PATH)
-ROOT_CONFIG = p_config.ProsperConfig(ROOT_CONFIG_PATH)
-
-def get_database_name(base_name='mongo_test'):
+def update_database_name(config, base_name='mongo_test'):
     """creates a database name combining name/py-version
 
+    Makes thread-safe names for test databases
+
     Args:
+        config (:obj:`prosper_config.ProsperConfig`): config object to update
         base_name (str): name of db to connect to
 
     Returns:
-        str: name + pymajor.pyminor + if(dev)
+        ProsperConfig: name + pymajor.pyminor + if(dev)
 
     """
     db_str = '{base_name}_{pymajor}-{pyminor}'.format(
@@ -35,9 +35,18 @@ def get_database_name(base_name='mongo_test'):
         db_str = db_str + '-dev'
 
 
-    return db_str
+    try:
+        config.local_config['MONGO']['database'] = db_str
+    except Exception:
+        pass
+    config.global_config['MONGO']['database'] = db_str
 
-DATABASE_NAME = get_database_name()
+    os.environ['PROSPER_MONGO__database'] = db_str
+
+    return config
+
+TEST_CONFIG = update_database_name(TEST_CONFIG)
+ROOT_CONFIG = update_database_name(ROOT_CONFIG)
 
 def can_connect_to_mongo(config):
     """returns true/false whether mongo is available
@@ -79,10 +88,11 @@ def clear_mongo_test_db(
             password=config.get_option('MONGO', 'password'),
         )
     )
-    tables = conn[DATABASE_NAME].collection_names()
+    database_name = config.get_option('MONGO', 'database')
+    tables = conn[database_name].collection_names()
     print(tables)
     for table in tables:
-        print('DROPPING: {}.{}'.format(DATABASE_NAME, table))
-        conn[DATABASE_NAME][table].remove()
+        print('DROPPING: {}.{}'.format(database_name, table))
+        conn[database_name][table].remove()
 
     conn.close()

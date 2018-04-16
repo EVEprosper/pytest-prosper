@@ -19,7 +19,6 @@ class MongoContextManager:
     Args:
         config (:obj:`prosper.common.prosper_config.ProsperConfig`): configparser-like object
         database (str): which database to connect to
-        config_key (str): section name for ConfigParser
         log_key (str): name of logger to attach to
 
     """
@@ -27,17 +26,12 @@ class MongoContextManager:
     def __init__(
             self,
             config,
-            _database_name=None,
-            config_key='MONGO',
             log_key=_version.__library_name__,
     ):
-        self.username = config.get_option(config_key, 'username')
-        self.password = config.get_option(config_key, 'password')
-        if _database_name:
-            self.database = _database_name
-        else:
-            self.database = config.get_option(config_key, 'database')
-        self.connection_string = config.get_option(config_key, 'connection_string')
+        self.username = config.get_option('MONGO', 'username')
+        self.password = config.get_option('MONGO', 'password')
+        self.database = config.get_option('MONGO', 'database')
+        self.connection_string = config.get_option('MONGO', 'connection_string')
         self._testmode = False
         self._testmode_filepath = pathlib.Path(__file__).parent
         self.logger = logging.getLogger(log_key)
