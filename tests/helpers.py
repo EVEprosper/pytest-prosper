@@ -61,6 +61,7 @@ def clear_mongo_test_db(
     tables = conn[database_name].collection_names()
     print(tables)
     for table in tables:
+        print('DROPPING: {}.{}'.format(database_name, table))
         conn[database_name][table].remove()
 
     conn.close()
