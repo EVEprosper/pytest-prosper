@@ -25,7 +25,7 @@ def get_database_name(base_name='mongo_test'):
         str: name + pymajor.pyminor + if(dev)
 
     """
-    db_str = '{base_name}_{pymajor}.{pyminor}'.format(
+    db_str = '{base_name}_{pymajor}-{pyminor}'.format(
         base_name=base_name,
         pymajor=platform.python_version_tuple()[0],
         pyminor=platform.python_version_tuple()[1],
