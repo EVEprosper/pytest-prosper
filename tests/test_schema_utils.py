@@ -10,6 +10,7 @@ def test_00_forcefail():
     print(platform.node())
     print(platform.system())
     print(platform.python_version())
+    print(helpers.DATABASE_NAME)
     assert False
 
 class TestMongoContextManager:
