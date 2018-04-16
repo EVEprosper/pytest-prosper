@@ -1,17 +1,11 @@
 """validate prosper.test_utils.schema_utils"""
 import os
-import platform
 
 import pytest
 import helpers
 
 import prosper.test_utils.schema_utils as schema_utils
-def test_00_forcefail():
-    print(platform.node())
-    print(platform.system())
-    print(platform.python_version())
-    print(helpers.DATABASE_NAME)
-    assert False
+
 
 class TestMongoContextManager:
     """validate expected behavior for MongoContextManager"""
