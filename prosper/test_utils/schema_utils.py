@@ -26,15 +26,15 @@ class MongoContextManager:
     def __init__(
             self,
             config,
-            log_key=_version.__library_name__,
+            _testmode=False,
+            _testmode_filepath=pathlib.Path(__file__).parent,
     ):
         self.username = config.get_option('MONGO', 'username')
         self.password = config.get_option('MONGO', 'password')
         self.database = config.get_option('MONGO', 'database')
         self.connection_string = config.get_option('MONGO', 'connection_string')
-        self._testmode = False
-        self._testmode_filepath = pathlib.Path(__file__).parent
-        self.logger = logging.getLogger(log_key)
+        self._testmode = _testmode
+        self._testmode_filepath = _testmode_filepath
         # TODO: validate {} in connection_str
 
     def __get_connector(self):
@@ -69,6 +69,7 @@ def fetch_latest_schema(
         schema_group,
         config,
         collection_name='schemas',
+        **kwargs,
 ):
     """find latest schema in database
 
@@ -77,9 +78,20 @@ def fetch_latest_schema(
         schema_group (str): group name for schema lookup
         config (:obj:`prosper_config.ProsperConfig`): config object with MONGO creds
         collection_name (str): table name with schemas
+        **kwargs: pass testmode values to connection
 
     Returns:
         dict: jsonschema object with latest version
 
     """
-    pass
+    with MongoContextManager(config, **kwargs) as mongo:
+        schema_list = list(mongo[collection_name].find({
+            '$and':[
+                {'schema_name': schema_name},
+                {'schema_group': schema_group},
+            ],
+        }))
+
+    return max(
+        schema_list, key=lambda x: semantic_version.Version(x['version'])
+    )['schema']
