@@ -69,7 +69,7 @@ def fetch_latest_schema(
         schema_group,
         config,
         collection_name='schemas',
-        **kwargs,
+        **kwargs
 ):
     """find latest schema in database
 
