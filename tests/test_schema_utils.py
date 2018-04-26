@@ -81,13 +81,11 @@ def test_fetch_latest_version(mongo_fixture):
     with mongo_fixture as t_mongo:
         t_mongo[collection_name].insert(FAKE_SCHEMA_TABLE)
 
-    latest_schema = schema_utils.fetch_latest_schema(
-        'fake.schema',
-        'test',
-        helpers.TEST_CONFIG,
-        collection_name=collection_name,
-        _testmode=True,
-        _testmode_filepath=mongo_fixture._testmode_filepath,
-    )
+    with mongo_fixture as t_mongo:
+        latest_schema = schema_utils.fetch_latest_schema(
+            'fake.schema',
+            'test',
+            t_mongo[collection_name]
+        )
 
     assert latest_schema == {'result': 'YUP'}

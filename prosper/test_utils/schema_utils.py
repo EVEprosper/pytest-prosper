@@ -67,30 +67,25 @@ class MongoContextManager:
 def fetch_latest_schema(
         schema_name,
         schema_group,
-        config,
-        collection_name='schemas',
-        **kwargs
+        mongo_collection,
 ):
     """find latest schema in database
 
     Args:
         schema_name (str): name of schema to track
         schema_group (str): group name for schema lookup
-        config (:obj:`prosper_config.ProsperConfig`): config object with MONGO creds
-        collection_name (str): table name with schemas
-        **kwargs: pass testmode values to connection
+        mongo_collection (:obj:`pymongo.collection`): db connection handle
 
     Returns:
         dict: jsonschema object with latest version
 
     """
-    with MongoContextManager(config, **kwargs) as mongo:
-        schema_list = list(mongo[collection_name].find({
-            '$and':[
-                {'schema_name': schema_name},
-                {'schema_group': schema_group},
-            ],
-        }))
+    schema_list = list(mongo_collection.find({
+        '$and':[
+            {'schema_name': schema_name},
+            {'schema_group': schema_group},
+        ],
+    }))
 
     return max(
         schema_list, key=lambda x: semantic_version.Version(x['version'])
