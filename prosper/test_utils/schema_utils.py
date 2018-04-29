@@ -1,14 +1,22 @@
 """schema testers"""
+import enum
 import json
 import logging
 import pathlib
 
+import deepdiff
 import genson
 import pymongo
 import semantic_version
 
 from . import _version
 ROOT_SCHEMA = pathlib.Path(__file__).parent / 'root_schema.schema'
+
+class Update(enum.Enum):
+    """enum for classifying what kind of update is required"""
+    major = 'major'
+    minor = 'minor'
+    no_update = 'no_update'
 
 class MongoContextManager:
     """context manager for mongo connections
@@ -18,8 +26,8 @@ class MongoContextManager:
 
     Args:
         config (:obj:`prosper.common.prosper_config.ProsperConfig`): configparser-like object
-        database (str): which database to connect to
-        log_key (str): name of logger to attach to
+        _testmode (bool): use a localdb rather than a prod one
+        _testmode_filepath (str): path to localdb
 
     """
 
@@ -64,6 +72,45 @@ class MongoContextManager:
         """with MongoContextManager() exitpoint"""
         self.connection.close()
 
+
+def compare_schemas(
+        sample_schema,
+        current_schema,
+):
+    """compare 2 jsonschemas and look for changes.  Checks required[] keys
+
+    Notes:
+        Update.minor: added required keys, but did not remove anything
+        Update.major: removed required keys or otherwise changed structure
+        Update.no_update: schemas are identical
+
+    Args:
+        sample_schema (dict): incomming schema to validate
+        current_schema (dict): current schema from database
+
+    Returns:
+        Update: update status of comparison
+
+    """
+    diff = deepdiff.DeepDiff(sample_schema, current_schema)
+
+    is_minor = any([
+        'dictionary_item_added' in diff,
+    ])
+    is_major = any([
+        'dictionary_item_removed' in diff,
+        'values_changed' in diff,
+        'type_changes' in diff,  # is minor?
+        'iterable_item_removed' in diff
+    ])
+
+    if is_major:
+        return Update.major
+    if is_minor:
+        return Update.minor
+
+    return Update.no_update
+
 def fetch_latest_schema(
         schema_name,
         schema_group,
@@ -89,4 +136,4 @@ def fetch_latest_schema(
 
     return max(
         schema_list, key=lambda x: semantic_version.Version(x['version'])
-    )['schema']
+    )

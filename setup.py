@@ -138,6 +138,7 @@ setup(
         'semantic_version',
         'plumbum',
         'docker',
+        'deepdiff',
         'genson',
         'pymongo',
         'dnspython',

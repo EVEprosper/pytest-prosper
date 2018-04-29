@@ -88,4 +88,5 @@ def test_fetch_latest_version(mongo_fixture):
             t_mongo[collection_name]
         )
 
-    assert latest_schema == {'result': 'YUP'}
+    assert latest_schema['schema'] == {'result': 'YUP'}
+    assert latest_schema['version'] == '1.1.1'
