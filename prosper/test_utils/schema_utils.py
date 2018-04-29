@@ -10,13 +10,17 @@ import pymongo
 import semantic_version
 
 from . import _version
+from . import exceptions
+
 ROOT_SCHEMA = pathlib.Path(__file__).parent / 'root_schema.schema'
+
 
 class Update(enum.Enum):
     """enum for classifying what kind of update is required"""
     major = 'major'
     minor = 'minor'
     no_update = 'no_update'
+
 
 class MongoContextManager:
     """context manager for mongo connections
@@ -108,6 +112,8 @@ def compare_schemas(
         return Update.major
     if is_minor:
         return Update.minor
+    if diff:
+        raise exceptions.UnhandledDiff(diff)
 
     return Update.no_update
 

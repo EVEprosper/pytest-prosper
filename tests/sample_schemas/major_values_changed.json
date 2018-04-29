@@ -1,0 +1,91 @@
+{
+  "$schema": "https://api.robinhood.com/instruments/#",
+  "type": "object",
+  "properties": {
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "splits": {
+            "type": "string"
+          },
+          "margin_initial_ratio": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "bloomberg_unique": {
+            "type": "string"
+          },
+          "list_date": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "symbol": {
+            "type": "string"
+          },
+          "fundamentals": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "day_trade_ratio": {
+            "type": "string"
+          },
+          "maintenance_ratio": {
+            "type": "integer"
+          },
+          "id": {
+            "type": "string"
+          },
+          "market": {
+            "type": "string"
+          },
+          "simple_name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bloomberg_unique",
+          "country",
+          "day_trade_ratio",
+          "fundamentals",
+          "id",
+          "list_date",
+          "maintenance_ratio",
+          "margin_initial_ratio",
+          "market",
+          "name",
+          "quote",
+          "simple_name",
+          "splits",
+          "state",
+          "symbol",
+          "type",
+          "url"
+        ]
+      }
+    },
+    "next": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "next",
+    "results"
+  ]
+}

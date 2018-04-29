@@ -90,3 +90,20 @@ def test_fetch_latest_version(mongo_fixture):
 
     assert latest_schema['schema'] == {'result': 'YUP'}
     assert latest_schema['version'] == '1.1.1'
+
+class TestCompareSchemas:
+    """validate expected behavior for compare_schemas()"""
+    base_schema = helpers.load_schema_from_file('base_schema.json')
+    minor_change = helpers.load_schema_from_file('minor_schema_change.json')
+    major_removed_value = helpers.load_schema_from_file('major_items_removed.json')
+    major_values_changed = helpers.load_schema_from_file('major_values_changed.json')
+    unhandled_diff = helpers.load_schema_from_file('unhandled_diff.json')
+
+    def test_compare_schemas_happypath(self):
+        """make sure equivalence works as expected"""
+        status = schema_utils.compare_schemas(
+            self.base_schema,
+            self.base_schema
+        )
+
+        assert status == schema_utils.Update.no_update

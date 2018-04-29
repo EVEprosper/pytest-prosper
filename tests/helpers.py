@@ -1,4 +1,5 @@
 """common test stuff"""
+import json
 import os
 import platform
 import warnings
@@ -96,3 +97,20 @@ def clear_mongo_test_db(
         conn[database_name][table].remove()
 
     conn.close()
+
+def load_schema_from_file(
+        filepath,
+        root_folder=os.path.join(HERE, 'sample_schemas')
+):
+    """read json/schema from file and load into program
+
+    Args:
+        filepath (str): path to schema file
+        root_folder (str): folder path
+
+    Returns:
+        dict: JSON parsed schema file
+
+    """
+    with open(os.path.join(root_folder, filepath), 'r') as j_fh:
+        return json.load(j_fh)
