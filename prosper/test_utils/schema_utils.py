@@ -1,4 +1,6 @@
 """schema testers"""
+import copy
+import datetime
 import enum
 import json
 import logging
@@ -6,17 +8,20 @@ import pathlib
 
 import deepdiff
 import genson
+import jsonschema
 import pymongo
 import semantic_version
 
 from . import _version
 from . import exceptions
 
-ROOT_SCHEMA = pathlib.Path(__file__).parent / 'root_schema.schema'
+with open(str(pathlib.Path(__file__).parent / 'root_schema.schema'), 'r') as schema_fh:
+    ROOT_SCHEMA = json.load(schema_fh)
 
 
 class Update(enum.Enum):
     """enum for classifying what kind of update is required"""
+    first_run = 'first_run'
     major = 'major'
     minor = 'minor'
     no_update = 'no_update'
@@ -96,6 +101,9 @@ def compare_schemas(
         Update: update status of comparison
 
     """
+    if not sample_schema:
+        return Update.first_run
+
     diff = deepdiff.DeepDiff(sample_schema, current_schema)
 
     is_minor = any([
@@ -125,8 +133,8 @@ def fetch_latest_schema(
     """find latest schema in database
 
     Args:
-        schema_name (str): name of schema to track
-        schema_group (str): group name for schema lookup
+        schema_name (str): data source name
+        schema_group (str): datas source group
         mongo_collection (:obj:`pymongo.collection`): db connection handle
 
     Returns:
@@ -139,7 +147,49 @@ def fetch_latest_schema(
             {'schema_group': schema_group},
         ],
     }))
-
+    if not schema_list:
+        return dict(
+            schema_group=schema_group,
+            schema_name=schema_name,
+            update='',
+            version='1.0.0',
+            schema={},
+        )
     return max(
         schema_list, key=lambda x: semantic_version.Version(x['version'])
     )
+
+def build_schema(
+        schema,
+        current_metadata,
+        update_type,
+):
+    """build updated schema
+
+    Args:
+        schema (dict): jsonschema for data source
+        current_metadata (dict): current table entry frame
+        update_type (enum): what kind of update to perform
+
+    Returns:
+        dict: updated current_metadata
+
+    """
+    updated_metadata = copy.deepcopy(current_metadata)
+    if any([
+            update_type == Update.first_run,
+            update_type == Update.minor,
+            update_type == Update.major,
+    ]):
+        updated_metadata['schema'] = schema
+        updated_metadata['update'] = datetime.datetime.utcnow().isoformat()
+
+    current_version = semantic_version.Version(current_metadata['version'])
+    if update_type == Update.minor:
+        updated_metadata['version'] = str(current_version.next_patch())
+    elif update_type == Update.major:
+        updated_metadata['version'] = str(current_version.next_minor())
+
+    jsonschema.validate(updated_metadata, ROOT_SCHEMA)
+
+    return updated_metadata

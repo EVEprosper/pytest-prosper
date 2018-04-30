@@ -139,6 +139,7 @@ setup(
         'plumbum',
         'docker',
         'deepdiff',
+        'jsonschema',
         'genson',
         'pymongo',
         'dnspython',
