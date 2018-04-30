@@ -1,5 +1,5 @@
 """validate prosper.test_utils.schema_utils"""
-import os
+import datetime
 
 import pytest
 import helpers
@@ -168,3 +168,57 @@ class TestCompareSchemas:
                 self.unhandled_diff
             )
 
+class TestBuildSchema:
+    fake_metadata = {
+        'schema_group': 'fake_group',
+        'schema_name': 'fake_name',
+        'update': datetime.datetime.utcnow().isoformat(),
+        'version': '1.2.1',
+        'schema': {'type': 'DONTCARE'},
+    }
+    dummy_schema = {'fake': 'DONTCARE'}
+
+    def test_build_schema_no_update(self):
+        """assert behavior for no_update"""
+        metadata = schema_utils.build_schema(
+            self.dummy_schema,
+            self.fake_metadata,
+            schema_utils.Update.no_update,
+        )
+        assert metadata == self.fake_metadata
+
+    def test_build_schema_first_run(self):
+        """assert behavior for first_run"""
+        metadata = schema_utils.build_schema(
+            self.dummy_schema,
+            self.fake_metadata,
+            schema_utils.Update.first_run,
+        )
+
+        assert metadata['schema'] == self.dummy_schema
+        assert metadata['update'] != self.fake_metadata['update']
+        assert metadata['version'] == self.fake_metadata['version']
+
+    def test_build_schema_minor(self):
+        """assert behavior for minor update"""
+        metadata = schema_utils.build_schema(
+            self.dummy_schema,
+            self.fake_metadata,
+            schema_utils.Update.minor,
+        )
+
+        assert metadata['schema'] == self.dummy_schema
+        assert metadata['update'] != self.fake_metadata['update']
+        assert metadata['version'] == '1.2.2'
+
+    def test_build_schema_major(self):
+        """assert behavior for major update"""
+        metadata = schema_utils.build_schema(
+            self.dummy_schema,
+            self.fake_metadata,
+            schema_utils.Update.major,
+        )
+
+        assert metadata['schema'] == self.dummy_schema
+        assert metadata['update'] != self.fake_metadata['update']
+        assert metadata['version'] == '1.3.0'
