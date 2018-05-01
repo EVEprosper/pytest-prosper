@@ -1,0 +1,48 @@
+{
+    "previous": null,
+    "results": [
+         {
+            "min_tick_size": null,
+            "type": "adr",
+            "splits": "https://api.robinhood.com/instruments/48b848ec-fde7-463e-9b78-dec89b7ffa2a/splits/",
+            "margin_initial_ratio": "1.0000",
+            "url": "https://api.robinhood.com/instruments/48b848ec-fde7-463e-9b78-dec89b7ffa2a/",
+            "quote": "https://api.robinhood.com/quotes/ADDYY/",
+            "tradability": "untradable",
+            "bloomberg_unique": "EQ0000000001542243",
+            "list_date": "2007-11-02",
+            "name": "Adidas AG Sponsored ADR (Germany)",
+            "symbol": "ADDYY",
+            "fundamentals": "https://api.robinhood.com/fundamentals/ADDYY/",
+            "country": "DE",
+            "day_trade_ratio": "1.0000",
+            "tradeable": false,
+            "maintenance_ratio": "1.0000",
+            "id": "48b848ec-fde7-463e-9b78-dec89b7ffa2a",
+            "market": "https://api.robinhood.com/markets/OTCM/",
+            "simple_name": "Adidas"
+        },
+        {
+            "min_tick_size": null,
+            "type": "stock",
+            "splits": "https://api.robinhood.com/instruments/6833b544-c42f-434f-827d-1826ee825bf2/splits/",
+            "margin_initial_ratio": "1.0000",
+            "url": "https://api.robinhood.com/instruments/6833b544-c42f-434f-827d-1826ee825bf2/",
+            "quote": "https://api.robinhood.com/quotes/ELOX/",
+            "tradability": "tradable",
+            "bloomberg_unique": "EQ0030276800001000",
+            "list_date": "2018-04-26",
+            "name": "Eloxx Pharmaceuticals, Inc. Common Stock",
+            "symbol": "ELOX",
+            "fundamentals": "https://api.robinhood.com/fundamentals/ELOX/",
+            "country": "US",
+            "day_trade_ratio": "1.0000",
+            "tradeable": true,
+            "maintenance_ratio": "1.0000",
+            "id": "6833b544-c42f-434f-827d-1826ee825bf2",
+            "market": "https://api.robinhood.com/markets/XNAS/",
+            "simple_name": "Eloxx Pharmaceuticals"
+        }
+    ],
+    "next": "https://api.robinhood.com/instruments/?cursor=cD0xMTU1MA%3D%3D"
+}
