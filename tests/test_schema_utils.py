@@ -1,5 +1,6 @@
 """validate prosper.test_utils.schema_utils"""
 import datetime
+import jsonschema
 
 import pytest
 import helpers
@@ -222,3 +223,18 @@ class TestBuildSchema:
         assert metadata['schema'] == self.dummy_schema
         assert metadata['update'] != self.fake_metadata['update']
         assert metadata['version'] == '1.3.0'
+
+    def test_build_schema_badschema(self):
+        """assert behavior for bad schema"""
+        dummy_meta = {
+            'schema': '',
+            'version': '1.0.0',
+            'update': datetime.datetime.utcnow().isoformat(),
+        }
+
+        with pytest.raises(jsonschema.exceptions.ValidationError):
+            metadata = schema_utils.build_schema(
+                self.dummy_schema,
+                dummy_meta,
+                schema_utils.Update.first_run
+            )
