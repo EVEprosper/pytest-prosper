@@ -99,12 +99,13 @@ class TestFetchLatestSchema:
         """make sure function returns expected for no content"""
         collection_name = 'blank_schema_table'
 
-        with mongo_fixture as t_mongo:
-            latest_schema = schema_utils.fetch_latest_schema(
-                'fake.schema',
-                'test',
-                t_mongo[collection_name]
-            )
+        with pytest.warns(exceptions.FirstRunWarning):
+            with mongo_fixture as t_mongo:
+                latest_schema = schema_utils.fetch_latest_schema(
+                    'fake.schema',
+                    'test',
+                    t_mongo[collection_name]
+                )
 
         assert latest_schema['schema'] == {}
         assert latest_schema['version'] == '1.0.0'

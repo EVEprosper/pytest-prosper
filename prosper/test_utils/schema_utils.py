@@ -5,6 +5,7 @@ import enum
 import json
 import logging
 import pathlib
+import warnings
 
 import deepdiff
 import genson
@@ -82,6 +83,45 @@ class MongoContextManager:
         self.connection.close()
 
 
+def fetch_latest_schema(
+        schema_name,
+        schema_group,
+        mongo_collection,
+):
+    """find latest schema in database
+
+    Args:
+        schema_name (str): data source name
+        schema_group (str): datas source group
+        mongo_collection (:obj:`pymongo.collection`): db connection handle
+
+    Returns:
+        dict: jsonschema object with latest version
+
+    """
+    schema_list = list(mongo_collection.find({
+        '$and':[
+            {'schema_name': schema_name},
+            {'schema_group': schema_group},
+        ],
+    }))
+    if not schema_list:
+        warnings.warn(
+            '{}.{} schema not in database -- creating fresh entry'.format(
+                schema_group, schema_name),
+            exceptions.FirstRunWarning
+        )
+        return dict(
+            schema_group=schema_group,
+            schema_name=schema_name,
+            update='',
+            version='1.0.0',
+            schema={},
+        )
+    return max(
+        schema_list, key=lambda x: semantic_version.Version(x['version'])
+    )
+
 def compare_schemas(
         sample_schema,
         current_schema,
@@ -125,40 +165,6 @@ def compare_schemas(
 
     return Update.no_update
 
-def fetch_latest_schema(
-        schema_name,
-        schema_group,
-        mongo_collection,
-):
-    """find latest schema in database
-
-    Args:
-        schema_name (str): data source name
-        schema_group (str): datas source group
-        mongo_collection (:obj:`pymongo.collection`): db connection handle
-
-    Returns:
-        dict: jsonschema object with latest version
-
-    """
-    schema_list = list(mongo_collection.find({
-        '$and':[
-            {'schema_name': schema_name},
-            {'schema_group': schema_group},
-        ],
-    }))
-    if not schema_list:
-        return dict(
-            schema_group=schema_group,
-            schema_name=schema_name,
-            update='',
-            version='1.0.0',
-            schema={},
-        )
-    return max(
-        schema_list, key=lambda x: semantic_version.Version(x['version'])
-    )
-
 def build_schema(
         schema,
         current_metadata,
@@ -193,3 +199,4 @@ def build_schema(
     jsonschema.validate(updated_metadata, ROOT_SCHEMA)
 
     return updated_metadata
+
