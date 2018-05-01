@@ -26,3 +26,6 @@ class SchemaUtilsException(TestUtilsException):
 class UnhandledDiff(SchemaUtilsException):
     """DeepDiff had output, but not handled as change"""
     pass
+class MajorSchemaUpdate(SchemaUtilsException):
+    """protect database from major schema updates -- require human to run update"""
+    pass

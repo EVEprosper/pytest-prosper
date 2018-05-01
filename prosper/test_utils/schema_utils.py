@@ -19,6 +19,12 @@ from . import exceptions
 with open(str(pathlib.Path(__file__).parent / 'root_schema.schema'), 'r') as schema_fh:
     ROOT_SCHEMA = json.load(schema_fh)
 
+__all__ = (
+    'MongoContextManager',
+    'Update',
+    'schema_helper',
+)
+
 
 class Update(enum.Enum):
     """enum for classifying what kind of update is required"""
@@ -165,7 +171,7 @@ def compare_schemas(
 
     return Update.no_update
 
-def build_schema(
+def build_metadata(
         schema,
         current_metadata,
         update_type,
@@ -200,3 +206,104 @@ def build_schema(
 
     return updated_metadata
 
+def dump_major_update(
+        metadata,
+        filepath,
+):
+    """dump major update to a local file for humans to review/update
+
+    Args:
+        metadata (dict): proposed new entry
+        filepath (:obj:`pathlib.Path`): path to dump file
+
+    """
+    if not filepath.exists():
+        collection = []
+    else:
+        with open(str(filepath), 'r') as coll_fh:
+            collection = json.load(coll_fh)
+
+    collection.append(metadata)
+
+    with open(str(filepath), 'w') as coll_fh:
+        json.dump(collection, coll_fh)
+
+MAJOR_UPDATE_FILEPATH = 'prosper-schema-update_{}.json'.format(
+    datetime.datetime.utcnow().isoformat())
+def schema_helper(
+        data,
+        data_source,
+        schema_name,
+        schema_group,
+        config,
+        collection_name='prosper_schemas',
+        _testmode=False,
+        _dump_filepath='',
+):
+    """test helper: generates schemas from data and checks them against a mongoDB.
+        Updates for minor changes (adding keys)
+        Raises errors for major changes
+
+
+    Args:
+        data (dict): data to generate jsonschema from (raw data)
+        data_source (str): link to source
+        schema_name (str): name of resource for tracking
+        schema_group (str): group (project name) for grouping
+        config (:obj:`prosper.common.ProsperConfig`): config object with [MONGO] credentials
+        _testmode (bool): run on local database with TinyMongo
+        _dump_filepath (str): path to dump files to
+
+    Returns:
+        ???
+
+    """
+    logger = logging.getLogger(_version.__library_name__)
+
+    logger.info('Parsing data into jsonschema')
+    builder = genson.SchemaBuilder(data_source)
+    builder.add_object(data)
+    schema = builder.to_schema()
+    logger.debug(schema)
+
+
+    mongo_context = MongoContextManager(
+        config, _testmode_filepath=_dump_filepath, _testmode=_testmode
+    )
+    with mongo_context as mongo:
+        logger.info(
+            'Fetching current schema from database: `%s.%s.%s`',
+            collection_name, schema_group, schema_name
+        )
+        current_metadata = fetch_latest_schema(
+            schema_name, schema_group, mongo[collection_name]
+        )
+
+        logger.info('Comparing schemas')
+        update_status = compare_schemas(
+            current_metadata['schema'], schema
+        )
+        logger.debug(update_status)
+
+        logger.info('Generating updated metadata')
+        metadata = build_metadata(
+            schema, current_metadata, update_status,
+        )
+        logger.debug(metadata)
+
+        if any([
+                update_status == Update.minor,
+                update_status == Update.first_run,
+        ]):
+            logger.info('Updating database')
+            _id = mongo[collection_name].insert_one(metadata)
+
+        elif update_status == Update.major:
+            logger.error(
+                'Major update -- Please run `update-prosper-schemas %s` to update db',
+                MAJOR_UPDATE_FILEPATH
+            )
+            dump_major_update(metadata, pathlib.Path(_dump_filepath) / MAJOR_UPDATE_FILEPATH)
+            raise exceptions.MajorSchemaUpdate()
+        else:
+            logger.info('No updates applied to database')

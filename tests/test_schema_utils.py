@@ -1,6 +1,8 @@
 """validate prosper.test_utils.schema_utils"""
 import datetime
+import json
 import jsonschema
+import pathlib
 
 import pytest
 import helpers
@@ -68,6 +70,7 @@ class TestMongoContextManager:
         assert data['many'] == 10
 
 class TestFetchLatestSchema:
+    """validate expected behavior for fetch_latest_schema()"""
     fake_schema_table = [
         {'schema_group':'test', 'schema_name':'fake.schema', 'version':'1.0.0',
          'schema':{'result':'NOPE'}},
@@ -170,7 +173,8 @@ class TestCompareSchemas:
                 self.unhandled_diff
             )
 
-class TestBuildSchema:
+class TestBuildMetadata:
+    """validate expected behavior for build_metadata()"""
     fake_metadata = {
         'schema_group': 'fake_group',
         'schema_name': 'fake_name',
@@ -182,7 +186,7 @@ class TestBuildSchema:
 
     def test_build_schema_no_update(self):
         """assert behavior for no_update"""
-        metadata = schema_utils.build_schema(
+        metadata = schema_utils.build_metadata(
             self.dummy_schema,
             self.fake_metadata,
             schema_utils.Update.no_update,
@@ -191,7 +195,7 @@ class TestBuildSchema:
 
     def test_build_schema_first_run(self):
         """assert behavior for first_run"""
-        metadata = schema_utils.build_schema(
+        metadata = schema_utils.build_metadata(
             self.dummy_schema,
             self.fake_metadata,
             schema_utils.Update.first_run,
@@ -203,7 +207,7 @@ class TestBuildSchema:
 
     def test_build_schema_minor(self):
         """assert behavior for minor update"""
-        metadata = schema_utils.build_schema(
+        metadata = schema_utils.build_metadata(
             self.dummy_schema,
             self.fake_metadata,
             schema_utils.Update.minor,
@@ -215,7 +219,7 @@ class TestBuildSchema:
 
     def test_build_schema_major(self):
         """assert behavior for major update"""
-        metadata = schema_utils.build_schema(
+        metadata = schema_utils.build_metadata(
             self.dummy_schema,
             self.fake_metadata,
             schema_utils.Update.major,
@@ -234,8 +238,43 @@ class TestBuildSchema:
         }
 
         with pytest.raises(jsonschema.exceptions.ValidationError):
-            metadata = schema_utils.build_schema(
+            metadata = schema_utils.build_metadata(
                 self.dummy_schema,
                 dummy_meta,
                 schema_utils.Update.first_run
             )
+
+class TestDumpMajorUpdate:
+    """validate expected behavior for dump_major_update()"""
+
+    dummy_metadata1 = {'butts': 'yes'}
+    dummy_metadata2 = {'butts': 'no'}
+    def test_dump_major_udpate_empty(self, tmpdir):
+        """validate system doesn't raise for empty data"""
+        filename = pathlib.Path(tmpdir) / 'empty.json'
+        schema_utils.dump_major_update(
+            self.dummy_metadata1,
+            filename,
+        )
+
+        with open(str(filename), 'r') as tmp_fh:
+            saved_data = json.load(tmp_fh)
+
+        assert saved_data[0] == self.dummy_metadata1
+
+
+    def test_dump_major_update_exists(self, tmpdir):
+        """validate system appends new metadata to report"""
+        filename = pathlib.Path(tmpdir) / 'exists.json'
+        with open(str(filename), 'w') as tmp_fh:
+            json.dump([self.dummy_metadata1], tmp_fh)
+
+        schema_utils.dump_major_update(
+            self.dummy_metadata2,
+            filename,
+        )
+
+        with open(str(filename), 'r') as tmp_fh:
+            saved_data = json.load(tmp_fh)
+
+        assert saved_data[1] == self.dummy_metadata2
