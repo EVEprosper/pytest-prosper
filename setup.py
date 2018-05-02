@@ -96,6 +96,23 @@ class PyTest(TestCommand):
         errno = pytest.main(pytest_commands)
         exit(errno)
 
+class QuickTest(PyTest):
+    """wrapper for quick-testing for devs"""
+    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
+
+    def initialize_options(self):
+        TestCommand.initialize_options(self)
+        self.pytest_args = [
+            'tests',
+            '-rx',
+            '-n',
+            '4',
+            '--cov=prosper/' + __library_name__,
+            '--cov-report=term-missing',
+            '--cov-config=.coveragerc',
+        ]
+
+
 with open('README.rst', 'r', 'utf-8') as fh:
     README = fh.read()
 
@@ -147,6 +164,7 @@ setup(
     tests_require=[
         'pytest',
         'pytest_cov',
+        'pytest-xdist',
         'tinymongo',
     ],
     extras_require={
@@ -156,6 +174,7 @@ setup(
         ],
     },
     cmdclass={
-        'test':PyTest,
+        'test': PyTest,
+        'fast': QuickTest,
     },
 )

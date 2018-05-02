@@ -1,18 +1,44 @@
 """common test stuff"""
+import datetime
 import json
 import os
 import platform
 import warnings
 
 import pymongo
+import genson
 
 import prosper.common.prosper_config as p_config
+from prosper.test_utils.schema_utils import generate_first_run_metadata, generate_schema_from_data
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 ROOT = os.path.join(os.path.dirname(HERE), 'prosper', 'test_utils')
 
 TEST_CONFIG = p_config.ProsperConfig(os.path.join(HERE, 'test.cfg'))
 ROOT_CONFIG = p_config.ProsperConfig(os.path.join(ROOT, 'app.cfg'))
+
+def init_schema_database(
+        context,
+        group_tag,
+        name_tag,
+        data,
+        version,
+):
+    """generates simple database for test process
+
+    Args:
+        context (:obj:`pymongo.collection`): mongo handle for writing to
+        group_tag (str): group name of entry
+        name_tag (str): name of entry
+        data (dict): raw data to genson
+        version (str): version to tag
+
+    """
+    metadata = generate_first_run_metadata(name_tag, group_tag, version)
+    metadata['schema'] = generate_schema_from_data(data, 'DUMMY_TEST_DATA')
+    metadata['update'] = datetime.datetime.utcnow().isoformat()
+
+    context.insert_one(metadata)
 
 def update_database_name(config, base_name='mongo_test'):
     """creates a database name combining name/py-version

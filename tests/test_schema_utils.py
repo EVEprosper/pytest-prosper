@@ -69,6 +69,7 @@ class TestMongoContextManager:
 
         assert data['many'] == 10
 
+
 class TestFetchLatestSchema:
     """validate expected behavior for fetch_latest_schema()"""
     fake_schema_table = [
@@ -112,6 +113,7 @@ class TestFetchLatestSchema:
 
         assert latest_schema['schema'] == {}
         assert latest_schema['version'] == '1.0.0'
+
 
 class TestCompareSchemas:
     """validate expected behavior for compare_schemas()"""
@@ -172,6 +174,7 @@ class TestCompareSchemas:
                 self.base_schema,
                 self.unhandled_diff
             )
+
 
 class TestBuildMetadata:
     """validate expected behavior for build_metadata()"""
@@ -244,6 +247,7 @@ class TestBuildMetadata:
                 schema_utils.Update.first_run
             )
 
+
 class TestDumpMajorUpdate:
     """validate expected behavior for dump_major_update()"""
 
@@ -278,3 +282,33 @@ class TestDumpMajorUpdate:
             saved_data = json.load(tmp_fh)
 
         assert saved_data[1] == self.dummy_metadata2
+
+
+class TestSchemaHelper:
+    """validate expected behavior for schema_helper()"""
+    base_sample = helpers.load_schema_from_file('base_sample.json')
+    minor_sample = helpers.load_schema_from_file('minor_sample.json')
+    major_sample = helpers.load_schema_from_file('major_sample.json')
+
+    name = 'dummy_name'
+    group = 'dummy_group'
+    collection = 'TEST_SCHEMA_HELPER'
+
+    def test_schema_helper_blank(self, mongo_fixture):
+        """exercise first_run path"""
+        with pytest.warns(exceptions.FirstRunWarning):
+            schema_utils.schema_helper(
+                data=self.base_sample,
+                data_source='TEST',
+                schema_name=self.name,
+                schema_group=self.group,
+                config=helpers.TEST_CONFIG,
+                _collection_name=self.collection,
+                _testmode=True,
+                _dump_filepath=mongo_fixture._testmode_filepath,
+            )
+
+        with mongo_fixture as t_mongo:
+            results = list(t_mongo[self.collection].find({}))
+
+        assert results[0]['version'] == '1.0.0'

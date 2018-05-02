@@ -88,6 +88,47 @@ class MongoContextManager:
         """with MongoContextManager() exitpoint"""
         self.connection.close()
 
+def generate_first_run_metadata(
+        schema_name,
+        schema_group,
+        version='1.0.0',
+):
+    """generate basic metadata frame for first_run case.  Broken out as test-helper
+
+    Args:
+        schema_name (str): name of data source
+        schema_group (str): group for data source
+        version (str): semantic version of init data
+
+    Returns:
+        dict: "blank" metadata object for first_run case
+
+    """
+    return dict(
+        schema_group=schema_group,
+        schema_name=schema_name,
+        update='',
+        version=version,
+        schema={},
+    )
+
+def generate_schema_from_data(
+        raw_data,
+        data_source='',
+):
+    """generate jsonschema from raw dict with genson.  Broken out as test-helper
+
+    Args:
+        raw_data (dict): raw json data from source
+        data_source (str): source of data being jsonschema'd
+
+    Returns:
+        dict: jsonschema
+
+    """
+    builder = genson.SchemaBuilder(data_source)
+    builder.add_object(raw_data)
+    return builder.to_schema()
 
 def fetch_latest_schema(
         schema_name,
@@ -117,13 +158,8 @@ def fetch_latest_schema(
                 schema_group, schema_name),
             exceptions.FirstRunWarning
         )
-        return dict(
-            schema_group=schema_group,
-            schema_name=schema_name,
-            update='',
-            version='1.0.0',
-            schema={},
-        )
+        return generate_first_run_metadata(schema_name, schema_group)
+
     return max(
         schema_list, key=lambda x: semantic_version.Version(x['version'])
     )
@@ -236,7 +272,7 @@ def schema_helper(
         schema_name,
         schema_group,
         config,
-        collection_name='prosper_schemas',
+        _collection_name='prosper_schemas',
         _testmode=False,
         _dump_filepath='',
 ):
@@ -261,11 +297,8 @@ def schema_helper(
     logger = logging.getLogger(_version.__library_name__)
 
     logger.info('Parsing data into jsonschema')
-    builder = genson.SchemaBuilder(data_source)
-    builder.add_object(data)
-    schema = builder.to_schema()
+    schema = generate_schema_from_data(data, data_source)
     logger.debug(schema)
-
 
     mongo_context = MongoContextManager(
         config, _testmode_filepath=_dump_filepath, _testmode=_testmode
@@ -273,10 +306,10 @@ def schema_helper(
     with mongo_context as mongo:
         logger.info(
             'Fetching current schema from database: `%s.%s.%s`',
-            collection_name, schema_group, schema_name
+            _collection_name, schema_group, schema_name
         )
         current_metadata = fetch_latest_schema(
-            schema_name, schema_group, mongo[collection_name]
+            schema_name, schema_group, mongo[_collection_name]
         )
 
         logger.info('Comparing schemas')
@@ -296,7 +329,7 @@ def schema_helper(
                 update_status == Update.first_run,
         ]):
             logger.info('Updating database')
-            _id = mongo[collection_name].insert_one(metadata)
+            _id = mongo[_collection_name].insert_one(metadata)
 
         elif update_status == Update.major:
             logger.error(
