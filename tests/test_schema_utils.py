@@ -298,7 +298,7 @@ class TestSchemaHelper:
             config=helpers.TEST_CONFIG,
             _collection_name=collection,
             _testmode=True,
-            _dump_filepath=mongo_fixture._testmode_filepath,
+            _dump_filepath=str(mongo_fixture._testmode_filepath),
         )
 
     def test_schema_helper_blank(self, mongo_fixture):
