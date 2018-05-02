@@ -292,9 +292,9 @@ class TestSchemaHelper:
 
     name = 'dummy_name'
     group = 'dummy_group'
-    collection = 'TEST_SCHEMA_HELPER'
+    collection = 'TESTSCHEMA_'
 
-    def do_the_thing(self, mongo_fixture, data):
+    def do_the_thing(self, mongo_fixture, data, collection):
         """helper: run schema_utils.schema_helper"""
         schema_utils.schema_helper(
             data=data,
@@ -302,30 +302,40 @@ class TestSchemaHelper:
             schema_name=self.name,
             schema_group=self.group,
             config=helpers.TEST_CONFIG,
-            _collection_name=self.collection,
+            _collection_name=collection,
             _testmode=True,
             _dump_filepath=mongo_fixture._testmode_filepath,
         )
 
     def test_schema_helper_blank(self, mongo_fixture):
         """exercise first_run path"""
+        collection = self.collection + __name__
         with pytest.warns(exceptions.FirstRunWarning):
-            self.do_the_thing(mongo_fixture, self.base_sample)
+            self.do_the_thing(
+                mongo_fixture, self.base_sample, self.collection + __name__)
 
         with mongo_fixture as t_mongo:
-            results = list(t_mongo[self.collection].find({}))
+            results = list(t_mongo[collection].find({}))
 
         assert results[0]['version'] == '1.0.0'
 
     def test_schema_helper_no_update(self, mongo_fixture):
         """exercise no_update path"""
+        collection = self.collection + __name__
         with mongo_fixture as t_mongo:
-            helpers.init_schema_database(
-                context=t_mongo[self.collection],
+            written_metadata = helpers.init_schema_database(
+                context=t_mongo[collection],
                 group_tag=self.group,
                 name_tag=self.name,
                 data=self.base_sample,
                 version='1.1.0'
             )
 
-        self.do_the_thing(mongo_fixture, self.base_sample)
+        self.do_the_thing(
+            mongo_fixture, self.base_sample, collection
+        )
+
+        with mongo_fixture as t_mongo:
+            results = list(t_mongo[collection].find({}))
+
+        assert results[0] == written_metadata

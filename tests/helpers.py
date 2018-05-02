@@ -35,10 +35,12 @@ def init_schema_database(
 
     """
     metadata = generate_first_run_metadata(name_tag, group_tag, version)
-    metadata['schema'] = generate_schema_from_data(data, 'DUMMY_TEST_DATA')
+    metadata['schema'] = generate_schema_from_data(data, 'DONTCARE')
     metadata['update'] = datetime.datetime.utcnow().isoformat()
 
     context.insert_one(metadata)
+
+    return metadata
 
 def update_database_name(config, base_name='mongo_test'):
     """creates a database name combining name/py-version

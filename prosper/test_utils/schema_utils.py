@@ -313,6 +313,7 @@ def schema_helper(
         current_metadata = fetch_latest_schema(
             schema_name, schema_group, mongo[_collection_name]
         )
+        logger.debug(current_metadata['schema'])
 
         logger.info('Comparing schemas')
         update_status = compare_schemas(
