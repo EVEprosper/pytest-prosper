@@ -294,21 +294,38 @@ class TestSchemaHelper:
     group = 'dummy_group'
     collection = 'TEST_SCHEMA_HELPER'
 
+    def do_the_thing(self, mongo_fixture, data):
+        """helper: run schema_utils.schema_helper"""
+        schema_utils.schema_helper(
+            data=data,
+            data_source='DONTCARE',
+            schema_name=self.name,
+            schema_group=self.group,
+            config=helpers.TEST_CONFIG,
+            _collection_name=self.collection,
+            _testmode=True,
+            _dump_filepath=mongo_fixture._testmode_filepath,
+        )
+
     def test_schema_helper_blank(self, mongo_fixture):
         """exercise first_run path"""
         with pytest.warns(exceptions.FirstRunWarning):
-            schema_utils.schema_helper(
-                data=self.base_sample,
-                data_source='TEST',
-                schema_name=self.name,
-                schema_group=self.group,
-                config=helpers.TEST_CONFIG,
-                _collection_name=self.collection,
-                _testmode=True,
-                _dump_filepath=mongo_fixture._testmode_filepath,
-            )
+            self.do_the_thing(mongo_fixture, self.base_sample)
 
         with mongo_fixture as t_mongo:
             results = list(t_mongo[self.collection].find({}))
 
         assert results[0]['version'] == '1.0.0'
+
+    def test_schema_helper_no_update(self, mongo_fixture):
+        """exercise no_update path"""
+        with mongo_fixture as t_mongo:
+            helpers.init_schema_database(
+                context=t_mongo[self.collection],
+                group_tag=self.group,
+                name_tag=self.name,
+                data=self.base_sample,
+                version='1.1.0'
+            )
+
+        self.do_the_thing(mongo_fixture, self.base_sample)

@@ -160,9 +160,11 @@ def fetch_latest_schema(
         )
         return generate_first_run_metadata(schema_name, schema_group)
 
-    return max(
+    data = max(
         schema_list, key=lambda x: semantic_version.Version(x['version'])
     )
+    data.pop('_id', None)  # remove Mongo $_id from working frame
+    return data
 
 def compare_schemas(
         sample_schema,
