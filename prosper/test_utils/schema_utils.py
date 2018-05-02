@@ -303,6 +303,9 @@ def schema_helper(
         ???
 
     """
+    if isinstance(_dump_filepath, str):
+        _dump_filepath = pathlib.Path(_dump_filepath)
+
     logger = logging.getLogger(_version.__library_name__)
 
     logger.info('Parsing data into jsonschema')
@@ -347,7 +350,7 @@ def schema_helper(
                 MAJOR_UPDATE_FILEPATH
             )
             dump_file = dump_major_update(
-                metadata, pathlib.Path(_dump_filepath) / MAJOR_UPDATE_FILEPATH)
+                metadata, _dump_filepath / MAJOR_UPDATE_FILEPATH)
             raise exceptions.MajorSchemaUpdate(dump_file)
         else:
             logger.info('No updates applied to database')
