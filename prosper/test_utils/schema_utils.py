@@ -15,6 +15,7 @@ import semantic_version
 
 from . import _version
 from . import exceptions
+import prosper.common.prosper_cli as p_cli
 
 with open(str(pathlib.Path(__file__).parent / 'root_schema.schema'), 'r') as schema_fh:
     ROOT_SCHEMA = json.load(schema_fh)
@@ -351,3 +352,24 @@ def schema_helper(
             raise exceptions.MajorSchemaUpdate(dump_file)
         else:
             logger.info('No updates applied to database')
+
+
+class UpdateProsperSchemas(p_cli.ProsperApplication):
+    """cli utility for writing major updates to mongoDB"""
+    PROGNAME = 'update-prosper-schemas'
+    VERSION = _version.__version__
+
+    HERE = str(pathlib.Path(''))
+    config_path = str(pathlib.Path(__file__).parent / 'app.cfg')
+
+
+    def main(self, update_file):
+        """main do stuff"""
+        self.logger.info('HELLO WORLD')
+
+def run_plumbum():  # pragma: no cover
+    """entrypoint hook for running CLI"""
+    UpdateProsperSchemas.run()
+
+if __name__ == '__main__':  # pragma: no cover
+    run_plumbum()

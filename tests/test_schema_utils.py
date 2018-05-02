@@ -3,13 +3,14 @@ import datetime
 import json
 import jsonschema
 import pathlib
+from plumbum import local
 
 import pytest
 import helpers
 
 import prosper.test_utils.schema_utils as schema_utils
 import prosper.test_utils.exceptions as exceptions
-
+import prosper.test_utils._version as _version
 
 @pytest.fixture
 def mongo_fixture(tmpdir):
@@ -394,3 +395,20 @@ class TestSchemaHelper:
         updated_metadata.pop('_id', None)
 
         assert updated_metadata['version'] == '1.1.0'
+
+class TestCLI:
+    """validate update-prosper-schemas behavior"""
+    CLI_name = 'update-prosper-schemas'
+    update_command = local['update-prosper-schemas']
+
+    def test_cli_help(self):
+        """make sure help command works"""
+        output = self.update_command('-h')
+
+    def test_cli_name(self):
+        """make sure --version command works"""
+        output = self.update_command('--version').strip()
+
+        assert output == '{cli_name} {version}'.format(
+            cli_name=self.CLI_name, version=_version.__version__
+        )

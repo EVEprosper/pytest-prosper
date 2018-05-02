@@ -150,6 +150,11 @@ setup(
             'test_utils/app.cfg',
         ],
     },
+    entry_points={
+        'console_scripts': [
+            'update-prosper-schemas=prosper.test_utils.schema_utils:run_plumbum',
+        ]
+    },
     python_requires='>=3.5',
     install_requires=[
         'prospercommon',
