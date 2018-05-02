@@ -361,3 +361,36 @@ class TestSchemaHelper:
 
         assert updated_metadata != written_metadata
         assert updated_metadata['version'] == '1.1.1'
+
+    def test_schema_helper_major_update(self, mongo_fixture):
+        """exercise major_update path"""
+        collection = self.collection + __name__
+        with mongo_fixture as t_mongo:
+            written_metadata = helpers.init_schema_database(
+                context=t_mongo[collection],
+                group_tag=self.group,
+                name_tag=self.name,
+                data=self.base_sample,
+                version='1.1.0',
+            )
+
+        with pytest.raises(exceptions.MajorSchemaUpdate) as e:
+            self.do_the_thing(
+                mongo_fixture, self.major_sample, collection
+            )
+        with open(str(e.value), 'r') as major_fh:
+            major_update_list = json.load(major_fh)
+
+        todo_metadata = major_update_list[0]
+        assert todo_metadata['version'] == '1.2.0'
+
+        with mongo_fixture as t_mongo:
+            updated_metadata = schema_utils.fetch_latest_schema(
+                self.name, self.group, t_mongo[collection]
+            )
+
+        #sanitize outputs
+        written_metadata.pop('_id', None)
+        updated_metadata.pop('_id', None)
+
+        assert updated_metadata['version'] == '1.1.0'
