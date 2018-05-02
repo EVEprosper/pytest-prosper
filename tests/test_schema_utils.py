@@ -120,7 +120,7 @@ class TestCompareSchemas:
     base_schema = helpers.load_schema_from_file('base_schema.json')
     minor_change = helpers.load_schema_from_file('minor_schema_change.json')
     major_removed_value = helpers.load_schema_from_file('major_items_removed.json')
-    major_values_changed = helpers.load_schema_from_file('major_values_changed.json')
+    #major_values_changed = helpers.load_schema_from_file('major_values_changed.json')
     unhandled_diff = set(helpers.load_schema_from_file('unhandled_diff.json'))
 
     def test_compare_schemas_happypath(self):
@@ -150,12 +150,6 @@ class TestCompareSchemas:
 
         assert status == schema_utils.Update.major
 
-        status = schema_utils.compare_schemas(
-            self.base_schema,
-            self.major_values_changed
-        )
-
-        assert status == schema_utils.Update.major
 
     def test_compare_schemas_empty(self):
         """make sure empty case signals first-run"""
@@ -328,7 +322,7 @@ class TestSchemaHelper:
                 group_tag=self.group,
                 name_tag=self.name,
                 data=self.base_sample,
-                version='1.1.0'
+                version='1.1.0',
             )
 
         self.do_the_thing(
@@ -339,3 +333,31 @@ class TestSchemaHelper:
             results = list(t_mongo[collection].find({}))
 
         assert results[0] == written_metadata
+
+    def test_schema_helper_minor_update(self, mongo_fixture):
+        """exercise minor_update path"""
+        collection = self.collection + __name__
+        with mongo_fixture as t_mongo:
+            written_metadata = helpers.init_schema_database(
+                context=t_mongo[collection],
+                group_tag=self.group,
+                name_tag=self.name,
+                data=self.base_sample,
+                version='1.1.0',
+            )
+
+        self.do_the_thing(
+            mongo_fixture, self.minor_sample, collection
+        )
+
+        with mongo_fixture as t_mongo:
+            updated_metadata = schema_utils.fetch_latest_schema(
+                self.name, self.group, t_mongo[collection]
+            )
+
+        #sanitize outputs
+        written_metadata.pop('_id', None)
+        updated_metadata.pop('_id', None)
+
+        assert updated_metadata != written_metadata
+        assert updated_metadata['version'] == '1.1.1'

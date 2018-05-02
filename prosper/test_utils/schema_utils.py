@@ -185,17 +185,19 @@ def compare_schemas(
         Update: update status of comparison
 
     """
+    logger = logging.getLogger(_version.__library_name__)
     if not sample_schema:
         return Update.first_run
 
     diff = deepdiff.DeepDiff(sample_schema, current_schema)
-
+    logger.debug(diff)
     is_minor = any([
         'dictionary_item_added' in diff,
+        'iterable_item_added' in diff,
     ])
     is_major = any([
         'dictionary_item_removed' in diff,
-        'values_changed' in diff,
+        # 'values_changed' in diff,
         'type_changes' in diff,  # is minor?
         'iterable_item_removed' in diff
     ])
@@ -205,7 +207,7 @@ def compare_schemas(
     if is_minor:
         return Update.minor
     if diff:
-        raise exceptions.UnhandledDiff(diff)
+        raise exceptions.UnhandledDiff(str(diff.keys()))
 
     return Update.no_update
 
@@ -254,6 +256,9 @@ def dump_major_update(
         metadata (dict): proposed new entry
         filepath (:obj:`pathlib.Path`): path to dump file
 
+    Returns:
+        str: path to dump file
+
     """
     if not filepath.exists():
         collection = []
@@ -265,6 +270,8 @@ def dump_major_update(
 
     with open(str(filepath), 'w') as coll_fh:
         json.dump(collection, coll_fh)
+
+    return str(filepath)
 
 MAJOR_UPDATE_FILEPATH = 'prosper-schema-update_{}.json'.format(
     datetime.datetime.utcnow().isoformat())
@@ -339,7 +346,8 @@ def schema_helper(
                 'Major update -- Please run `update-prosper-schemas %s` to update db',
                 MAJOR_UPDATE_FILEPATH
             )
-            dump_major_update(metadata, pathlib.Path(_dump_filepath) / MAJOR_UPDATE_FILEPATH)
-            raise exceptions.MajorSchemaUpdate()
+            dump_file = dump_major_update(
+                metadata, pathlib.Path(_dump_filepath) / MAJOR_UPDATE_FILEPATH)
+            raise exceptions.MajorSchemaUpdate(dump_file)
         else:
             logger.info('No updates applied to database')
