@@ -255,7 +255,7 @@ class TestDumpMajorUpdate:
     dummy_metadata2 = {'butts': 'no'}
     def test_dump_major_udpate_empty(self, tmpdir):
         """validate system doesn't raise for empty data"""
-        filename = pathlib.Path(tmpdir) / 'empty.json'
+        filename = tmpdir / 'empty.json'
         schema_utils.dump_major_update(
             self.dummy_metadata1,
             filename,
@@ -269,7 +269,7 @@ class TestDumpMajorUpdate:
 
     def test_dump_major_update_exists(self, tmpdir):
         """validate system appends new metadata to report"""
-        filename = pathlib.Path(tmpdir) / 'exists.json'
+        filename = tmpdir / 'exists.json'
         with open(str(filename), 'w') as tmp_fh:
             json.dump([self.dummy_metadata1], tmp_fh)
 
