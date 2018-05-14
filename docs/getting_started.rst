@@ -45,3 +45,5 @@ Documentation
     pip install .[dev]
     sphinx-apidoc -f -o docs/source prosper/test_utils
     sphinx-build -b html docs/ webpage/
+
+.. _PyTest: https://docs.pytest.org/en/latest/
