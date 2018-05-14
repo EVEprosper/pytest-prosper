@@ -22,11 +22,11 @@ import prosper.common.prosper_cli as p_cli
 with open(str(pathlib.Path(__file__).parent / 'root_schema.schema'), 'r') as schema_fh:
     ROOT_SCHEMA = json.load(schema_fh)
 
-__all__ = (
+__all__ = [
     'MongoContextManager',
     'Update',
     'schema_helper',
-)
+]
 
 
 class Update(enum.Enum):
