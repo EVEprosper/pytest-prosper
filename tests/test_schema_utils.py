@@ -434,7 +434,7 @@ class TestCLI:
         with mongo_context as t_mongo:
             results = t_mongo[collection_name].find_one({})
 
-        with open(self.update_path, 'r') as update_fh:
+        with open(str(self.update_path), 'r') as update_fh:
             expected_results = json.load(update_fh)
 
         results.pop('_id')
