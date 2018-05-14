@@ -31,6 +31,7 @@ update-prosper-schemas
     pip install -e .
     python setup.py test
     update-prosper-schemas --dump-config > my_config.cfg
+    ## Update SECRETS in .cfg file ##
     update-prosper-schemas prosper-schema-update_2018-05-14T01/44/17.440168.json --verbose --config=my_config.cfg
 
 When major updates are required, a human needs to push updates to the database.  Just run the test suite and then run ``update-prosper-schemas`` on the dumped .json file.
