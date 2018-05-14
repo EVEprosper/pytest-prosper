@@ -16,14 +16,14 @@ Quickstart
 
 .. code-block:: python
 
-setup(
-    ...
-    tests_require=[
-        'prospertestutils',
-    ]
-)
+    setup(
+        ...
+        tests_require=[
+            'prospertestutils',
+        ]
+    )
 
-ProsperTestUtils is suggested as a `tests_require` install.  Though there are some general use utilities, this library is not meant for production use.
+ProsperTestUtils is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
 
 Index
 =====
