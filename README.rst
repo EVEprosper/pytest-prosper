@@ -6,7 +6,22 @@ ProsperTestUtils
 
 |Build Status| |Coverage Status| |PyPI Badge| |Docs| |Gitter|
 
-Collection of test helpers for Prosper python projects
+Helper libraries for test coverage and general maintenance of services.  Making test coverage easier across Prosper projects!
+
+Quickstart
+==========
+
+.. code-block:: python
+
+    setup(
+        ...
+        tests_require=[
+            'prospertestutils',
+        ]
+    )
+
+ProsperTestUtils is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
+
 
 
 
