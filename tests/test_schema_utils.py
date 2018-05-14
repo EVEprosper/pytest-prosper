@@ -400,6 +400,7 @@ class TestCLI:
     """validate update-prosper-schemas behavior"""
     CLI_name = 'update-prosper-schemas'
     update_command = local['update-prosper-schemas']
+    update_path = pathlib.Path(helpers.HERE) / 'dummy-schema-update.json'
 
     def test_cli_help(self):
         """make sure help command works"""
@@ -412,3 +413,31 @@ class TestCLI:
         assert output == '{cli_name} {version}'.format(
             cli_name=self.CLI_name, version=_version.__version__
         )
+
+    def test_cli_happypath(self, tmpdir):
+        """dry-run CLI"""
+        collection_name = 'TESTDUMMY'
+        output = self.update_command(
+            self.update_path,
+            '--verbose',
+            '--debug',
+            '--local-dir={}'.format(tmpdir),
+            '--collection={}'.format(collection_name),
+        )
+
+        mongo_context = schema_utils.MongoContextManager(
+            config=helpers.ROOT_CONFIG,
+            _testmode=True,
+            _testmode_filepath=tmpdir,
+        )
+        mongo_context.database = 'TESTprosper'
+        with mongo_context as t_mongo:
+            results = t_mongo[collection_name].find_one({})
+
+        with open(self.update_path, 'r') as update_fh:
+            expected_results = json.load(update_fh)
+
+        results.pop('_id')
+        print(expected_results[0])
+        print(results)
+        assert results == expected_results[0]

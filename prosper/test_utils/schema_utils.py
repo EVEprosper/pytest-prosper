@@ -12,10 +12,12 @@ import genson
 import jsonschema
 import pymongo
 import semantic_version
+from plumbum import cli
 
 from . import _version
 from . import exceptions
 import prosper.common.prosper_cli as p_cli
+
 
 with open(str(pathlib.Path(__file__).parent / 'root_schema.schema'), 'r') as schema_fh:
     ROOT_SCHEMA = json.load(schema_fh)
@@ -354,18 +356,49 @@ def schema_helper(
             logger.info('No updates applied to database')
 
 
-class UpdateProsperSchemas(p_cli.ProsperApplication):
+class UpdateProsperSchemas(p_cli.ProsperApplication):  # pragma: no cover
     """cli utility for writing major updates to mongoDB"""
     PROGNAME = 'update-prosper-schemas'
     VERSION = _version.__version__
 
-    HERE = str(pathlib.Path(''))
     config_path = str(pathlib.Path(__file__).parent / 'app.cfg')
 
+    HERE = cli.SwitchAttr(
+        '--local-dir',
+        cli.ExistingDirectory,
+        help='local working directory for scripty stuff',
+        default=str(pathlib.Path('')),
+    )
+    schema_collection = cli.SwitchAttr(
+        '--collection',
+        str,
+        help='Mongo collection to write to',
+        default='ProsperSchemas',
+    )
 
     def main(self, update_file):
         """main do stuff"""
-        self.logger.info('HELLO WORLD')
+        self.logger.info('Loading update file: %s', update_file)
+        with open(update_file, 'r') as update_fh:
+            update_recipe = json.load(update_fh)
+
+        mongo_context = MongoContextManager(
+            self.config,
+            _testmode_filepath=self.HERE,
+            _testmode=self.debug,
+        )
+
+        self.logger.info('connecting to Mongo')
+        with mongo_context as mongo:
+            for update in update_recipe:
+                self.logger.info(
+                    'writing update for %s.%s', update['schema_group'], update['schema_name']
+                )
+                receipt = mongo[self.schema_collection].insert_one(update)
+                self.logger.debug(receipt)
+
+        self.logger.info('updated remote collection')
+
 
 def run_plumbum():  # pragma: no cover
     """entrypoint hook for running CLI"""
