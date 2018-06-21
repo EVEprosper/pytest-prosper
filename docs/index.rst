@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-================
-ProsperTestUtils
-================
+==============
+Pytest-Prosper
+==============
 
 |Build Status| |Coverage Status| |PyPI Badge| |Docs|
 
@@ -19,11 +19,11 @@ Quickstart
     setup(
         ...
         tests_require=[
-            'prospertestutils',
+            'pytest-prosper',
         ]
     )
 
-ProsperTestUtils is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
+Pytest-Prosper is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
 
 Index
 =====

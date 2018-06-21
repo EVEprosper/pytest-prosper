@@ -1,8 +1,8 @@
 |Show Logo|
 
-================
-ProsperTestUtils
-================
+==============
+Pytest-Prosper
+==============
 
 |Build Status| |Coverage Status| |PyPI Badge| |Docs| |Gitter|
 
@@ -16,11 +16,11 @@ Quickstart
     setup(
         ...
         tests_require=[
-            'prospertestutils',
+            'pytest-prosper',
         ]
     )
 
-ProsperTestUtils is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
+Pytest-Prosper is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
 
 Features
 ========

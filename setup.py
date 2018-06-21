@@ -59,7 +59,7 @@ def hack_find_packages(include_str):
 
     return new_list
 
-__package_name__ = 'ProsperTestUtils'
+__package_name__ = 'pytest-prosper'
 __library_name__ = 'test_utils'
 
 
