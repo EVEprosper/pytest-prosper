@@ -1,6 +1,5 @@
 |Show Logo|
 
-==============
 Pytest-Prosper
 ==============
 
@@ -9,7 +8,7 @@ Pytest-Prosper
 Helper libraries for test coverage and general maintenance of services.  Making test coverage easier across Prosper projects!
 
 Quickstart
-==========
+----------
 
 .. code-block:: python
 
@@ -23,10 +22,10 @@ Quickstart
 Pytest-Prosper is suggested as a ``tests_require`` install.  Though there are some general use utilities, this library is not meant for production use.
 
 Features
-========
+--------
 
 `schema_utils`_
----------------
+~~~~~~~~~~~~~~~
 
 NoSQL is a powerful tool for web scraping, but can be difficult to keep traditional DBA tools running on.  Get alerted when major updates to data feeds occur without having to hand-craft JSONschemas for every source.
 
