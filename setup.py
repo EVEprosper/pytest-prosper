@@ -106,8 +106,6 @@ class QuickTest(PyTest):
         self.pytest_args = [
             'tests',
             '-rx',
-            '-n',
-            '4',
             '--log-level=DEBUG',
             '--cov=prosper/' + __library_name__,
             '--cov-report=term-missing',
@@ -153,9 +151,12 @@ setup(
     entry_points={
         'console_scripts': [
             'update-prosper-schemas=prosper.test_utils.schema_utils:run_plumbum',
-        ]
+        ],
+        'pytest11': [
+            'prosper = prosper.test_utils.pytest_plugin',
+        ],
     },
-    python_requires='>=3.5',
+    python_requires='>=3.6',
     install_requires=[
         'prospercommon',
         'requests',
@@ -167,11 +168,11 @@ setup(
         'genson',
         'pymongo',
         'dnspython',
+        'pytest',
     ],
     tests_require=[
         'pytest',
         'pytest_cov',
-        'pytest-xdist',
         'tinymongo',
     ],
     extras_require={

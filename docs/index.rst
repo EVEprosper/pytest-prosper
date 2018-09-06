@@ -34,6 +34,7 @@ Index
 
    getting_started.rst
    schema_utils.rst
+   pytest.rst
 
 API Reference
 =============
@@ -41,7 +42,7 @@ API Reference
 .. toctree::
     :maxdepth: 2
  
-    source/test_utils.rst
+    source/modules.rst
 
 Indices and tables
 ==================
