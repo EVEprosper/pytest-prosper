@@ -1,5 +1,6 @@
 """plugins for prosper projects/tests"""
 
+# NOTE: cov report lies about 4-8
 import pytest
 
 import prosper.common.prosper_config as p_config
@@ -17,7 +18,7 @@ def pytest_addoption(parser):
 
     parser.addini('config_path', 'Path to default app.cfg file')
 
-@pytest.fixture
+@pytest.fixture  # pragma: no cover
 def secret_cfg(request):
     """yield a config with secrets applied
 
@@ -30,7 +31,7 @@ def secret_cfg(request):
         request.config.option.secret_filepath,
     )
 
-@pytest.fixture
+@pytest.fixture  # pragma: no cover
 def config(request):
     """yield a raw config.  No secrets
 
