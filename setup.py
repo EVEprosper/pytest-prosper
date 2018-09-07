@@ -70,12 +70,13 @@ class PyTest(TestCommand):
 
     """
     user_options = [
-        ('pytest-args=', 'a', 'Arguments to pass to pytest')
-
+        ('pytest-args=', 'a', 'Arguments to pass to pytest'),
+        ('secret-cfg=', None, 'Secret credentials file'),
     ]
 
     def initialize_options(self):
         TestCommand.initialize_options(self)
+        self.secret_cfg = ''
         self.pytest_args = [
             'tests',
             '-rx',
@@ -94,13 +95,15 @@ class PyTest(TestCommand):
             pytest_commands = shlex.split(self.pytest_args)
         except AttributeError:
             pytest_commands = self.pytest_args
+
+        if self.secret_cfg:
+            pytest_commands.append('--secret-cfg=' + self.secret_cfg)
+
         errno = pytest.main(pytest_commands)
         exit(errno)
 
 class QuickTest(PyTest):
     """wrapper for quick-testing for devs"""
-    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
-
     def initialize_options(self):
         TestCommand.initialize_options(self)
         self.pytest_args = [
@@ -169,6 +172,7 @@ setup(
         'pymongo',
         'dnspython',
         'pytest',
+        'tinymongo',
     ],
     tests_require=[
         'pytest',

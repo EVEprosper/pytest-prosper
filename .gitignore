@@ -110,3 +110,4 @@ cache/
 
 # Secret configs
 *_local.cfg
+credentials*

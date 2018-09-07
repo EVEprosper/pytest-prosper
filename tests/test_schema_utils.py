@@ -53,9 +53,9 @@ class TestMongoContextManager:
 
         assert data['many'] == 10
 
-    def test_mongo_context_prodmode(self):
+    def test_mongo_context_prodmode(self, secret_cfg):
         """test against real mongo"""
-        if not helpers.can_connect_to_mongo(helpers.TEST_CONFIG):
+        if not helpers.can_connect_to_mongo(secret_cfg):
             pytest.xfail('no mongo credentials')
 
         mongo_context = schema_utils.MongoContextManager(

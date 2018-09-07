@@ -15,10 +15,17 @@ def pytest_addoption(parser):
         default='',
         help='path to secret config template values',
     )
+    group.addoption(
+        '--secret-strict',
+        action='store_true',
+        dest='secret_strict',
+        default=False,
+        help='Force requirement for --secret-cfg'
+    )
 
     parser.addini('config_path', 'Path to default app.cfg file')
 
-@pytest.fixture  # pragma: no cover
+@pytest.fixture
 def secret_cfg(request):
     """yield a config with secrets applied
 
@@ -26,12 +33,19 @@ def secret_cfg(request):
         prosper.config.ProsperConfig: configuration object with secrets applied
 
     """
+    if not request.config.option.secret_filepath and request.config.option.secret_strict:
+        pytest.xfail('missing credentials file -- STRICT REQUIREMENT')
+    elif not request.config.option.secret_filepath:
+        return p_config.ProsperConfig(
+            request.config.getini('config_path')
+        )
+
     return p_config.render_secrets(
         request.config.getini('config_path'),
         request.config.option.secret_filepath,
     )
 
-@pytest.fixture  # pragma: no cover
+@pytest.fixture
 def config(request):
     """yield a raw config.  No secrets
 
@@ -40,5 +54,5 @@ def config(request):
 
     """
     return p_config.ProsperConfig(
-        request.config.getini('config_path'),
+        request.config.getini('config_path')
     )
