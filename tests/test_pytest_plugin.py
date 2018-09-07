@@ -19,7 +19,6 @@ class TestSecretConfig:
         """)
 
         testdir.makepyfile(f"""
-
             import pytest
             def test_secret_cfg(secret_cfg):
                 assert secret_cfg.get_option('section', 'secret') == 'princess'
@@ -37,7 +36,6 @@ class TestSecretConfig:
         """)
 
         testdir.makepyfile(f"""
-
             import pytest
             def test_secret_cfg(secret_cfg):
                 assert secret_cfg.get_option('section', 'secret') == 'princess'
@@ -55,7 +53,6 @@ class TestSecretConfig:
         """)
 
         testdir.makepyfile(f"""
-
             import pytest
             def test_secret_cfg(secret_cfg):
                 assert secret_cfg.get_option('section', 'value') == 'butts'
@@ -75,7 +72,6 @@ def test_regular_config(testdir):
     """)
 
     testdir.makepyfile(f"""
-
         import pytest
         def test_config(config):
             assert config.get_option('section', 'value') == 'butts'
