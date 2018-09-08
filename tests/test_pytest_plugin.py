@@ -61,7 +61,7 @@ class TestSecretConfig:
         """)
 
         result = testdir.runpytest()
-        print(result.parseoutcomes())
+        # print(result.parseoutcomes())
         assert result.ret == 0
 
 def test_regular_config(testdir):

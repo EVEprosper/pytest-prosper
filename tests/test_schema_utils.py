@@ -59,7 +59,7 @@ class TestMongoContextManager:
             pytest.xfail('no mongo credentials')
 
         mongo_context = schema_utils.MongoContextManager(
-            helpers.TEST_CONFIG,
+            secret_cfg,
         )
 
         with mongo_context as mongo:
